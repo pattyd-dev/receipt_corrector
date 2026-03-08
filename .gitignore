@@ -46,3 +46,14 @@ terraform.rc
 
 # Ignore my notes.
 *.txt
+
+# Hide website code files. Ensure all private information is hidden, top priority for me.
+*.css
+*.html
+*.js
+
+# Ignore backend config for remote state
+backend.tf
+
+# Ignore Output
+output/*
