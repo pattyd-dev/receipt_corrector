@@ -16,14 +16,21 @@ variable "project_tag" {
   default = "Receipt Corrector"
 }
 
-variable "public_cidr" {
+variable "public_cidr_a" {
   type = string
 }
 
-variable "private_cidr" {
+variable "private_cidr_a" {
   type = string
 }
 
+variable "public_cidr_b" {
+  type = string
+}
+
+variable "private_cidr_b" {
+  type = string
+}
 variable "vpc_cidr" {
   type = string
 }

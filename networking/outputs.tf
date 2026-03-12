@@ -3,13 +3,23 @@ output "vpc_id" {
   description = "ID of main VPC."
 }
 
-output "public_subnet" {
-  value       = aws_subnet.receipt_public.id
+output "public_subnet_a" {
+  value       = aws_subnet.receipt_corrector_subnets["public_a"].id
   description = "Public subnet ID."
 }
 
-output "private_subnet" {
-  value       = aws_subnet.receipt_private.id
+output "private_subnet_a" {
+  value       = aws_subnet.receipt_corrector_subnets["private_a"].id
+  description = "Private subnet ID."
+}
+
+output "public_subnet_b" {
+  value       = aws_subnet.receipt_corrector_subnets["public_b"].id
+  description = "Public subnet ID."
+}
+
+output "private_subnet_b" {
+  value       = aws_subnet.receipt_corrector_subnets["private_b"].id
   description = "Private subnet ID."
 }
 

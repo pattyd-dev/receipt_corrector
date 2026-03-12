@@ -21,6 +21,11 @@ resource "aws_route" "default_route" {
 }
 
 resource "aws_route_table_association" "receipt_corrector" {
-  subnet_id      = aws_subnet.receipt_public.id
+  for_each = {
+    subnet_a = aws_subnet.receipt_corrector_subnets["public_a"].id
+    subnet_b = aws_subnet.receipt_corrector_subnets["public_b"].id
+  }
+
+  subnet_id      = each.value
   route_table_id = aws_route_table.receipt_corrector_public.id
 }
