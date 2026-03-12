@@ -7,3 +7,26 @@ resource "aws_ecr_repository" "receipt_corrector" {
     scan_on_push = true
   }
 }
+
+resource "aws_iam_user" "github_action_user" {
+  name = "github_action_user"
+}
+
+resource "aws_iam_user_policy_attachment" "ecr_power_user" {
+  user       = aws_iam_user.github_action_user.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+}
+
+resource "aws_iam_access_key" "github_action_user_key" {
+  user = aws_iam_user.github_action_user.name
+}
+
+output "access_key_id" {
+  value     = aws_iam_access_key.github_action_user_key.id
+  sensitive = true
+}
+
+output "secret_access_key" {
+  value     = aws_iam_access_key.github_action_user_key.secret
+  sensitive = true
+}
