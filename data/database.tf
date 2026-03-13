@@ -20,53 +20,63 @@ resource "aws_dynamodb_table" "receipt_table_clean" {
   }
 }
 
-# resource "aws_db_instance" "receipt_table_clean_rds" {
-#   allocated_storage    = 10
-#   db_name              = "mydb"
-#   engine               = "mysql"
-#   engine_version       = "8.0"
-#   instance_class       = "db.t3.micro"
-#   username             = "foo"
-#   password             = "foobarbaz"
-#   parameter_group_name = "default.mysql8.0"
-#   skip_final_snapshot  = true
-# }
+resource "aws_db_instance" "default" {
+  allocated_storage    = 10
+  db_name              = "receipt_data"
+  engine               = "postgres"
+  engine_version       = "17.9"
+  instance_class       = "db.t3.micro"
+  username = jsondecode(aws_secretsmanager_secret_version.db_password.secret_string)["username"]
+  password = jsondecode(aws_secretsmanager_secret_version.db_password.secret_string)["password"]
+
+  skip_final_snapshot  = true
+
+  db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+}
+
+# Generate a random password
+resource "random_password" "db_password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+# Store it in Secrets Manager
+resource "aws_secretsmanager_secret" "db_password" {
+  name        = "receipt-corrector/db-password"
+  description = "RDS master password for receipt corrector"
+}
+
+resource "aws_secretsmanager_secret_version" "db_password" {
+  secret_id     = aws_secretsmanager_secret.db_password.id
+  secret_string = jsonencode({
+    username = "dbadmin"
+    password = random_password.db_password.result
+  })
+}
 
 
-# resource "aws_db_instance" "default" {
-#   allocated_storage    = 10
-#   db_name              = "mydb"
-#   engine               = "postgres"
-#   engine_version       = "16.3"
-#   instance_class       = "db.t3.micro"
-#   username             = "foo"
-#   password             = "foobarbaz"
-#   skip_final_snapshot  = true
-# 
-#   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
-#   vpc_security_group_ids = [aws_security_group.rds_sg.id]
-# }
-# 
-# resource "aws_db_subnet_group" "rds_subnet_group" {
-#   name       = "rds-subnet-group"
-#   subnet_ids = [aws_subnet.private_a.id, aws_subnet.private_b.id]
-# }
-# 
-# resource "aws_security_group" "rds_sg" {
-#   name   = "rds-sg"
-#   vpc_id = aws_vpc.main.id
-# 
-#   ingress {
-#     from_port       = 5432
-#     to_port         = 5432
-#     protocol        = "tcp"
-#     security_groups = [aws_security_group.ecs_sg.id]  # only allow your ECS tasks in
-#   }
-# 
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-# }
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "rds-subnet-group"
+  subnet_ids = [data.terraform_remote_state.networking.outputs.private_subnet_a, data.terraform_remote_state.networking.outputs.private_subnet_b]
+}
+
+resource "aws_security_group" "rds_sg" {
+  name   = "rds-sg"
+  vpc_id = data.terraform_remote_state.networking.outputs.vpc_id
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [data.terraform_remote_state.networking.outputs.public_sg]  # only allow your ECS tasks in
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
