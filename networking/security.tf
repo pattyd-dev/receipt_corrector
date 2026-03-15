@@ -1,3 +1,5 @@
+# EC2
+
 resource "aws_key_pair" "receipt_key" {
   key_name   = "receipt_key"
   public_key = file(var.ssh_key_path)
@@ -48,4 +50,36 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.public_server.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1"
+}
+
+# ECS
+
+resource "aws_security_group" "alb_sg" {
+  name   = "receipt-corrector-alb-sg"
+  vpc_id = aws_vpc.receipt_corrector.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.corp_ip]
+  }
+
+#  ingress {
+#    from_port   = 443
+#    to_port     = 443
+#    protocol    = "tcp"
+#    cidr_blocks = ["0.0.0.0/0"]
+#  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Project = var.project_tag
+  }
 }

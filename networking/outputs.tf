@@ -32,3 +32,8 @@ output "receipt_corrector_key_pair" {
   value       = aws_key_pair.receipt_key.id
   description = "Key pair for SSH connection."
 }
+
+output "ecs_alb_sg" {
+    value = aws_security_group.alb_sg.id
+    description  = "Security Group for ALB in front of ECS cluster."
+}
