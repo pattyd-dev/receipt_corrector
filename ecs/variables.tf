@@ -11,7 +11,16 @@ variable "aws_credential_path" {
   type = string
 }
 
-variable "project_name" {
+variable "project_tag" {
   type    = string
   default = "Receipt Corrector"
+}
+
+variable "route_53_zone_id" {
+  type = string
+}
+
+variable "domain_name" {
+  type    = string
+  default = "example.com"
 }
