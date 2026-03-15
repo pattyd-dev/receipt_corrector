@@ -17,6 +17,11 @@ resource "aws_iam_user_policy_attachment" "ecr_power_user" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
 
+resource "aws_iam_user_policy_attachment" "ecs_full_access" {
+  user       = aws_iam_user.github_action_user.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+}
+
 resource "aws_iam_access_key" "github_action_user_key" {
   user = aws_iam_user.github_action_user.name
 }
