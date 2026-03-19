@@ -86,7 +86,7 @@ resource "aws_iam_policy" "ecs_s3_read_policy" {
           "s3:GetObject"
         ]
         Effect   = "Allow"
-        Resource = data.terraform_remote_state.uploader_data_stores.outputs.source_bucket_arn
+        Resource = "${data.terraform_remote_state.uploader_data_stores.outputs.source_bucket_arn}/*"
       },
     ]
   })
