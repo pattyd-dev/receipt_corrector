@@ -117,6 +117,21 @@ resource "aws_iam_policy" "ecs_task_policy" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "dynamodb_read" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.dynamodb_read_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "dynamodb_write" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.ecs_task_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "s3_read" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.ecs_s3_read_policy.arn
+}
+
 # =============================================================================
 # CLOUDWATCH LOG GROUP
 # =============================================================================
@@ -182,6 +197,7 @@ resource "aws_security_group" "ecs_sg" {
   name   = "receipt-corrector-ecs-sg"
   vpc_id = data.terraform_remote_state.networking.outputs.vpc_id
 
+  # ALB health checks and forwarded traffic
   ingress {
     from_port       = 5000
     to_port         = 5000
@@ -189,6 +205,13 @@ resource "aws_security_group" "ecs_sg" {
     security_groups = [data.terraform_remote_state.networking.outputs.ecs_alb_sg]
   }
 
+  # Direct access from corporate IP
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["${var.corp_ip}"]
+  }
   egress {
     from_port   = 0
     to_port     = 0
@@ -228,7 +251,7 @@ resource "aws_lb_target_group" "receipt_corrector" {
   target_type = "ip"   # required for Fargate awsvpc networking
 
   health_check {
-    path                = "/"
+    path                = "/health"
     healthy_threshold   = 2
     unhealthy_threshold = 3
     interval            = 30
@@ -263,11 +286,13 @@ resource "aws_ecs_service" "receipt_corrector" {
 
   network_configuration {
     subnets = [
-      data.terraform_remote_state.networking.outputs.private_subnet_a,
-      data.terraform_remote_state.networking.outputs.private_subnet_b
+    #  data.terraform_remote_state.networking.outputs.private_subnet_a,
+    #  data.terraform_remote_state.networking.outputs.private_subnet_b
+    data.terraform_remote_state.networking.outputs.public_subnet_a,
+    data.terraform_remote_state.networking.outputs.public_subnet_b
     ]
     security_groups  = [aws_security_group.ecs_sg.id]
-    assign_public_ip = false
+    assign_public_ip = true
   }
 
   load_balancer {
