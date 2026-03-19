@@ -24,3 +24,7 @@ variable "domain_name" {
   type    = string
   default = "example.com"
 }
+
+variable "corp_ip" {
+  type = string
+}
