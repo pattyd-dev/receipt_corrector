@@ -38,6 +38,15 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   to_port           = 443
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_3000" {
+  security_group_id = aws_security_group.public_server.id
+  cidr_ipv4         = var.corp_ip
+  from_port         = 3000
+  ip_protocol       = "tcp"
+  to_port           = 3000
+}
+
+
 resource "aws_vpc_security_group_ingress_rule" "allow_5000" {
   security_group_id = aws_security_group.public_server.id
   cidr_ipv4         = var.corp_ip
