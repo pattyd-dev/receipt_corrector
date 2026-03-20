@@ -54,7 +54,7 @@ resource "aws_iam_role" "ecs_task_role" {
 }
 
 resource "aws_iam_policy" "dynamodb_read_policy" {
-  name        = "DynamoDBReadPolicy"
+  name        = "ecs-DynamoDBReadPolicy"
   description = "Allows read-only access to DynamoDB"
 
   policy = jsonencode({
