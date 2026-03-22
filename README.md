@@ -4,12 +4,13 @@ This project is a containerized Python web application designed to facilitate hu
 The networking environment is provisioned entirely from scratch using a custom VPC, designed with both public and private subnets, internet gateways, and routing tables to ensure proper network segmentation and controlled traffic flow. The application integrates multiple data stores, leveraging DynamoDB for raw data ingestion and RDS for structured relational storage of the validated output, demonstrating a full-stack approach to cloud architecture that spans containerization, networking, and both relational and non-relational databases.
 # Security
 Network-level security is enforced through granular security groups configured following the principle of least privilege. Each component of the architecture is restricted to only accept traffic from explicitly authorized sources, ensuring that no service is exposed beyond its intended scope and that the overall application maintains a strong and deliberate security boundary throughout.
-# System Diagram - EC2 Implementation
-![System Architecture](documentation/system-diagram-ec2.png)
-# System Diagram - ECS Implementation
-![Coming Soon](documentation/system-diagram-ecs.png)
-# Features to be implemented:
+# Containerization & Scaling - WIP
 Conatainerize application. 
 Storing container images in ECR. 
 Deploying the app via ECS.
+# CI/CD - WIP
 Implement CI/CD via GitHub Actions for developing additional features.
+# System Diagram - EC2 Implementation
+![EC2 Architecture](documentation/system-diagram-ec2.png)
+# System Diagram - ECS Implementation
+![ECS Architecture](documentation/system-diagram-ecs.png)
